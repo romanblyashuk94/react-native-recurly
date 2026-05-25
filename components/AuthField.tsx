@@ -26,6 +26,7 @@ const AuthField = forwardRef<TextInput, AuthFieldProps>(
       containerClassName,
       onFocus,
       onBlur,
+      secureTextEntry: _secureTextEntry,
       ...rest
     },
     ref,

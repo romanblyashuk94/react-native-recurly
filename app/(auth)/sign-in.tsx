@@ -55,31 +55,39 @@ export default function SignInScreen() {
     );
     if (emailErr || password.length === 0) return;
 
-    const { error } = await signIn.password({
-      emailAddress: emailAddress.trim(),
-      password,
-    });
+    try {
+      const { error } = await signIn.password({
+        emailAddress: emailAddress.trim(),
+        password,
+      });
 
-    if (error) {
-      if (!errors?.fields?.identifier && !errors?.fields?.password) {
+      if (error) {
+        if (!errors?.fields?.identifier && !errors?.fields?.password) {
+          setGeneralError(
+            "We couldn't sign you in. Please check your email and password.",
+          );
+        }
+        return;
+      }
+
+      if (signIn.status === "complete") {
+        await signIn.finalize({
+          navigate: ({ session }) => {
+            if (session?.currentTask) return;
+            router.replace("/(tabs)");
+          },
+        });
+      } else {
         setGeneralError(
-          "We couldn't sign you in. Please check your email and password.",
+          "Additional verification is required. Please contact support.",
         );
       }
-      return;
-    }
-
-    if (signIn.status === "complete") {
-      await signIn.finalize({
-        navigate: ({ session }) => {
-          if (session?.currentTask) return;
-          router.replace("/(tabs)");
-        },
-      });
-    } else {
+    } catch (err) {
+      console.error("Sign-in failed", err);
       setGeneralError(
-        "Additional verification is required. Please contact support.",
+        "Something went wrong while signing you in. Please try again.",
       );
+      return;
     }
   };
 
