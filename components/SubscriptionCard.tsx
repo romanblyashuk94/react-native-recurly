@@ -62,7 +62,9 @@ const SubscriptionCard = ({
             <View className="sub-row">
               <View className="sub-row-copy">
                 <Text className="sub-label">Payment:</Text>
-                <Text className="sub-value">{paymentMethod?.trim()}</Text>
+                <Text className="sub-value">
+                  {paymentMethod?.trim() || "Not provided"}
+                </Text>
               </View>
             </View>
 
@@ -70,7 +72,7 @@ const SubscriptionCard = ({
               <View className="sub-row-copy">
                 <Text className="sub-label">Category:</Text>
                 <Text className="sub-value">
-                  {category?.trim() || plan?.trim()}
+                  {category?.trim() || plan?.trim() || "Not provided"}
                 </Text>
               </View>
             </View>
@@ -79,7 +81,9 @@ const SubscriptionCard = ({
               <View className="sub-row-copy">
                 <Text className="sub-label">Started:</Text>
                 <Text className="sub-value">
-                  {startDate ? formatSubscriptionDateTime(startDate) : ""}
+                  {startDate
+                    ? formatSubscriptionDateTime(startDate)
+                    : "Not provided"}
                 </Text>
               </View>
             </View>
@@ -88,7 +92,9 @@ const SubscriptionCard = ({
               <View className="sub-row-copy">
                 <Text className="sub-label">Renewal date:</Text>
                 <Text className="sub-value">
-                  {renewalDate ? formatSubscriptionDateTime(renewalDate) : ""}
+                  {renewalDate
+                    ? formatSubscriptionDateTime(renewalDate)
+                    : "Not provided"}
                 </Text>
               </View>
             </View>
@@ -96,7 +102,9 @@ const SubscriptionCard = ({
             <View className="sub-row">
               <View className="sub-row-copy">
                 <Text className="sub-label">Status:</Text>
-                <Text className="sub-value">{formatStatusLabel(status)}</Text>
+                <Text className="sub-value">
+                  {formatStatusLabel(status) || "Not provided"}
+                </Text>
               </View>
             </View>
           </View>
