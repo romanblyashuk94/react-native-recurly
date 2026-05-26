@@ -3,10 +3,12 @@ import "@/global.css";
 import { ClerkProvider } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
-import { useEffect } from "react";
+import { SplashScreen, Stack, useGlobalSearchParams, usePathname } from "expo-router";
+import { useEffect, useRef } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { PostHogProvider } from "posthog-react-native";
+import { posthog } from "@/lib/posthog";
 
 const publishableKey: string = (() => {
   const key = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -21,6 +23,20 @@ const publishableKey: string = (() => {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const pathname = usePathname();
+  const params = useGlobalSearchParams();
+  const previousPathname = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (previousPathname.current !== pathname) {
+      posthog.screen(pathname, {
+        previous_screen: previousPathname.current ?? null,
+        ...params,
+      });
+      previousPathname.current = pathname;
+    }
+  }, [pathname, params]);
+
   const [fontsLoaded, fontError] = useFonts({
     "sans-light": require("@/assets/fonts/PlusJakartaSans-Light.ttf"),
     "sans-regular": require("@/assets/fonts/PlusJakartaSans-Regular.ttf"),
@@ -43,7 +59,16 @@ export default function RootLayout() {
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          <Stack screenOptions={{ headerShown: false }} />
+          <PostHogProvider
+            client={posthog}
+            autocapture={{
+              captureScreens: false,
+              captureTouches: true,
+              propsToCapture: ["testID"],
+            }}
+          >
+            <Stack screenOptions={{ headerShown: false }} />
+          </PostHogProvider>
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </ClerkProvider>
