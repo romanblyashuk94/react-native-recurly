@@ -1,4 +1,5 @@
 import { icons } from "@/constants/icons";
+import { posthog } from "@/lib/posthog";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -93,6 +94,11 @@ const CreateSubscriptionModal = ({
     };
 
     onSubmit(newSubscription);
+    posthog.capture("subscription_created", {
+      subscription_name: newSubscription.name,
+      subscription_price: newSubscription.price,
+      subscription_category: newSubscription.category ?? "",
+    });
     resetForm();
     onClose();
   };
@@ -242,7 +248,10 @@ const CreateSubscriptionModal = ({
                 })}
               >
                 <View
-                  className={clsx("auth-button", !isValid && "auth-button-disabled")}
+                  className={clsx(
+                    "auth-button",
+                    !isValid && "auth-button-disabled",
+                  )}
                 >
                   <Text className="auth-button-text">Add Subscription</Text>
                 </View>
