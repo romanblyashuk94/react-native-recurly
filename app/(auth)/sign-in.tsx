@@ -6,6 +6,7 @@ import { useSignIn } from "@clerk/expo";
 import { Link, useRouter } from "expo-router";
 import { styled } from "nativewind";
 import { useRef, useState } from "react";
+import { usePostHog } from "posthog-react-native";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -23,6 +24,7 @@ const SafeAreaView = styled(RNSafeAreaView);
 export default function SignInScreen() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const router = useRouter();
+  const posthog = usePostHog();
 
   const passwordRef = useRef<TextInput>(null);
 
@@ -62,6 +64,9 @@ export default function SignInScreen() {
       });
 
       if (error) {
+        posthog.capture("sign_in_failed", {
+          reason: "credential_error",
+        });
         if (!errors?.fields?.identifier && !errors?.fields?.password) {
           setGeneralError(
             "We couldn't sign you in. Please check your email and password.",
@@ -71,6 +76,11 @@ export default function SignInScreen() {
       }
 
       if (signIn.status === "complete") {
+        const userId = signIn.createdSessionId ?? emailAddress.trim();
+        posthog.identify(userId, {
+          $set: { email: emailAddress.trim() },
+        });
+        posthog.capture("sign_in_succeeded");
         await signIn.finalize({
           navigate: ({ session }) => {
             if (session?.currentTask) return;
@@ -78,12 +88,16 @@ export default function SignInScreen() {
           },
         });
       } else {
+        posthog.capture("sign_in_failed", {
+          reason: "additional_verification_required",
+        });
         setGeneralError(
           "Additional verification is required. Please contact support.",
         );
       }
     } catch (err) {
       console.error("Sign-in failed", err);
+      posthog.capture("sign_in_failed", { reason: "unexpected_error" });
       setGeneralError(
         "Something went wrong while signing you in. Please try again.",
       );

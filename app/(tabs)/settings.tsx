@@ -7,6 +7,7 @@ import { styled } from "nativewind";
 import { useState } from "react";
 import { Alert, Image, Text, View } from "react-native";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+import { usePostHog } from "posthog-react-native";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -15,6 +16,7 @@ const Settings = () => {
   const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const router = useRouter();
+  const posthog = usePostHog();
 
   const [signingOut, setSigningOut] = useState(false);
 
@@ -30,6 +32,8 @@ const Settings = () => {
           onPress: async () => {
             try {
               setSigningOut(true);
+              posthog.capture("signed_out");
+              posthog.reset();
               await signOut();
               router.replace("/(auth)/sign-in");
             } finally {

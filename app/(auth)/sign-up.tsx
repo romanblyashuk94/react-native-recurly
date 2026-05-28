@@ -10,6 +10,7 @@ import { useSignUp } from "@clerk/expo";
 import { Link, useRouter } from "expo-router";
 import { styled } from "nativewind";
 import { useMemo, useRef, useState } from "react";
+import { usePostHog } from "posthog-react-native";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -25,6 +26,7 @@ const SafeAreaView = styled(RNSafeAreaView);
 export default function SignUpScreen() {
   const { signUp, errors, fetchStatus } = useSignUp();
   const router = useRouter();
+  const posthog = usePostHog();
 
   const passwordRef = useRef<TextInput>(null);
 
@@ -81,13 +83,20 @@ export default function SignUpScreen() {
     });
 
     if (error) {
+      posthog.capture("sign_up_failed", { reason: "credential_error" });
       if (!errors?.fields?.emailAddress && !errors?.fields?.password) {
         setGeneralError("We couldn't create your account. Please try again.");
       }
       return;
     }
 
+    posthog.capture("sign_up_submitted", { email: emailAddress.trim() });
+
     if (signUp.status === "complete") {
+      posthog.identify(emailAddress.trim(), {
+        $set: { email: emailAddress.trim() },
+        $set_once: { signup_date: new Date().toISOString() },
+      });
       await goHome();
       return;
     }
@@ -119,6 +128,12 @@ export default function SignUpScreen() {
     }
 
     if (signUp.status === "complete") {
+      const email = (signUp.emailAddress ?? emailAddress).trim();
+      posthog.identify(email, {
+        $set: { email },
+        $set_once: { signup_date: new Date().toISOString() },
+      });
+      posthog.capture("sign_up_email_verified", { email });
       await goHome();
     } else {
       setGeneralError(
