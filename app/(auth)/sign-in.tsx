@@ -1,6 +1,7 @@
 import AuthBrand from "@/components/AuthBrand";
 import AuthButton from "@/components/AuthButton";
 import AuthField from "@/components/AuthField";
+import ContinueWithGoogle from "@/components/ContinueWithGoogle";
 import { validateEmail } from "@/lib/validation";
 import { useSignIn } from "@clerk/expo";
 import { Link, useRouter } from "expo-router";
@@ -176,6 +177,8 @@ export default function SignInScreen() {
                 loading={isFetching}
                 disabled={!canSubmit || isFetching}
               />
+
+              <ContinueWithGoogle disabled={isFetching} />
             </View>
           </View>
 

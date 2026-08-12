@@ -9,9 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.r.bliashuk.react-native-recurly",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.r.bliashuk.react_native_recurly",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -29,6 +31,7 @@
       "expo-router",
       "expo-secure-store",
       "@clerk/expo",
+      "@clerk/expo-google-signin",
       [
         "expo-splash-screen",
         {
@@ -53,9 +56,7 @@
             "./assets/fonts/PlusJakartaSans-ExtraBold.ttf"
           ]
         }
-      ],
-      "@clerk/expo",
-      "expo-secure-store"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

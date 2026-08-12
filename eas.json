@@ -1,0 +1,9 @@
+{
+  "build": {
+    "development": {
+      "env": {
+        "EXPO_PUBLIC_CLERK_GOOGLE_IOS_URL_SCHEME": "com.googleusercontent.apps.989008739070-d73aohj1jfobt0ml2rqv076jesce4kl9"
+      }
+    }
+  }
+}
